@@ -10,49 +10,97 @@
 
 // Options:
 // 1. view all departments
-//   Shows formatted table showing 
+//   Show a formatted table showing 
 //     - department names
 //     - department ids
 // 2. view all roles
-//   Shows 
+//   Show
 //     - job title
 //     - role id
 //     - department that the role belongs to
 //     - salary for that role
 // 3. view all employees
-//   Shows a formatted table
-//     - employee ids
-//     - first names, last names
-//     - job titles
-//     - departments
-//     - salaries
-//     - managers that the employees report to
+//   Show a formatted table
+//     - employee id
+//     - first name
+//     - last name
+//     - job title
+//     - department
+//     - salary
+//     - manager that the employee reports to
 // 4. add a department
-//   Prompt to enter
+//   Prompt to enter the following data:
 //     - name of the department
-//     - Show that the department is added to the database
+//     - Then show that the department is added to the database
 // 5. add a role
-//   Prompt to enter
+//   Prompt to enter the following data:
 //     - name
 //     - salary
 //     - department for the role
-//     - Show that the role is added to the database
+//     - Then show that the role is added to the database
 // 6. add an employee
-//   Prompt to enter
+//   Prompt to enter the following data:
 //     - employee’s first name, last name
 //     - role
 //     - manager
-//     - Show that the employee is added to the database
+//     - Then show that the employee is added to the database
 // 7. update an employee role
 //   Prompt to select an employee 
 //     - update their new role
-//     - Show that this information is updated in the database
+//     - Then show that this information is updated in the database
 //////////////////////////////////////////////////////////////
 
 const inquirer = require('inquirer');
 const fs = require('fs');
+const mysql = require("mysql2");
+const cTab = require("console.table");
 
+const db = mysql.reateConnection({
+  host: "localhost",
+  user: "root",
+  password: "root",
+  database: "employees_db"
+});
 
+// Array of questions for user input
+const userQuestions = [
+    {
+      type: 'input',
+      name: 'empname',
+      message: 'What is this employee\'s name?',
+    },
+    {
+      type: 'input',
+      name: 'id',
+      message: 'What is this employee\'s id?',
+    },
+    {
+      type: 'input',
+      name: 'email',
+      message: 'What is this employee\'s email?',
+    },
+    {
+      type: 'input',
+      name: 'more',
+      message: 'Enter another employee? (y/n)',
+    }
+  ]
+  
+const menuInputs = async (inputs = []) => {
+  const menuQuestions = [
+    {
+      type: 'list',
+      message: 'Which employee would you like to add next?',
+      name: 'empType',
+      choices: ['Manager', 'Engineer', 'Intern'],
+    },
+  ];
+  
+  const { more, ...answers } = await inquirer.prompt(menuQuestions);
+  const newInputs = [...inputs, answers];
+  return more ? menuInputs(newInputs) : newInputs;
+};
+  
 const mainMenu = async () => {
     const inputs = await menuInputs();
     switch (inputs[0].empType) {
