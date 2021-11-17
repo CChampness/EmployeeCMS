@@ -7,6 +7,9 @@
 --             LEFT JOIN employees manager ON employees.manager_id = manager.id
 --             ORDER BY employees.id;
 
-SELECT CONCAT(employees.first_name, " ", employees.last_name) AS Manager
-FROM employees
-WHERE employees.manager_id = employees.id;
+-- SELECT CONCAT(employees.first_name, " ", employees.last_name) AS Manager
+-- FROM employees
+-- WHERE employees.manager_id = employees.id;
+
+SELECT DISTINCT employees.id, CONCAT(first_name, " ", last_name)
+FROM employees;
