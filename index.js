@@ -55,8 +55,6 @@ const fs = require('fs');
 const mysql = require("mysql2");
 const cTab = require("console.table");
 const refreshDatabase = require("./lib/refreshDB");
-const displayRes = require("./lib/displayRes");
-const { resolveSoa } = require('dns');
 const { exit } = require('process');
 
 const db = mysql.createConnection({
@@ -66,229 +64,22 @@ const db = mysql.createConnection({
   database: "employees_db"
 });
 
-/////////////////////////////////////////////////////
-// Array of questions for role user input
-const roleInputs = async (inputs = []) => {
-  const roleOptions = [
-    {
-      type: 'list',
-      name: 'role',
-      choices: ["1", "2"],
-      message: 'What role does this employee have?',
-    }
-  ];
 
-  const { more, ...answers } = await inquirer.prompt(roleOptions);
-  const newInputs = [...inputs, answers];
-  return more ? roleInputs(newInputs) : newInputs;
-};
-
-const roleMenu = async () => {
-  const inputs = await roleInputs();
-  switch (inputs[0].userOption) {
-  }
-  return //something good;
-};
-
-// Array of questions for manager user input
-const mgrInputs = async (inputs = []) => {
-  const mgrOptions = [
-    {
-      type: 'list',
-      name: 'manager',
-      choices: ["A", "B"],
-      message: 'Who is this employee\'s manager?',
-    }
-  ];
-
-  const { more, ...answers } = await inquirer.prompt(mgrOptions);
-  const newInputs = [...inputs, answers];
-  return more ? mgrInputs(newInputs) : newInputs;
-};
-
-const mgrMenu = async () => {
-  const inputs = await mgrInputs();
-  switch (inputs[0].userOption) {
-  }
-  return //something good;
-};
-
-/////////////////////////////////////////////////////
-
-// Array of choices for main user input
-const menuInputs = async (inputs = []) => {
-  const menuQuestions = [
-    {
-      type: 'list',
-      message: 'What would you like to do?',
-      name: 'userOption',
-      choices: ['Refresh the database',
-                'View all employees',
-                'View all roles',
-                'View all departments',
-                'Add an employee',
-                'Add a role',
-                'Add a department',
-                'Update an employee\'s role',
-                'Quit'
-               ],
-    },
-  ];
-  
-  const { more, ...answers } = await inquirer.prompt(menuQuestions);
-  const newInputs = [...inputs, answers];
-  return more ? menuInputs(newInputs) : newInputs;
-};
-  
-const mainMenu = async () => {
-  const inputs = await menuInputs();
-  switch (inputs[0].userOption) {
-    case 'Refresh the database':
-      refreshDatabase();
-      break;
-    case 'View all employees':
-      viewAllEmployees();
-      break;
-    case 'View all roles':
-      viewAllRoles();
-      break;
-    case 'View all departments':
-      viewAllDepartments();
-      break;
-    case 'Add an employee':
-      addEmployee();
-      break;
-    case 'Add a role':
-      addRole();
-      break;
-    case 'Add a department':
-      addDepartment();
-      break;
-    case 'Update an employee\'s role':
-      updateEmployeeRole();
-      break;
-    case 'Quit':
-      exit();
-      break;
-  }
-  mainMenu();
-};
-
-function viewAllEmployees() {
-  db.query(`SELECT employees.id AS "Employee ID", employees.first_name, employees.last_name, roles.title AS "Title", dept_name AS "Department", salary,
-            CONCAT( manager.first_name, " ", manager.last_name) as Manager
-            FROM ((roles
-            JOIN employees ON employees.role_id = roles.id)
-            JOIN departments ON departments.id = roles.department_id)
-            LEFT JOIN employees manager ON employees.manager_id = manager.id
-            ORDER BY employees.id`,
-    (err, result) => {
-      if (err) throw err;
-      console.log(`\n`);
-      console.table(result);
-    })
+addDepartment = () => {
+  inquirer.prompt([{
+      type: 'input',
+      name: 'department',
+      message: 'What is the new department?'
+    }]).then((answers) => {
+      console.log(answers);
+  // db.query(`INSERT INTO departments (dept_name)
+  //           VALUES (${answers.department})`, function (err, result, fields) {
+  //     if (err) throw err;
+  //     console.log(`\n`);
+  //     console.table(result);
+  //   })
+    });
 }
 
-function viewAllRoles() {
-  db.query(`SELECT roles.id AS "Role ID", title, departments.dept_name, salary FROM roles
-            JOIN departments ON departments.id = roles.department_id`,
-    (err, result) => {
-      if (err) throw err;
-      console.log(`\n`);
-      console.table(result);
-    })
-}
-
-function viewAllDepartments() {
-  db.query("SELECT id, dept_name AS Department FROM departments",
-    (err, result) => {
-      if (err) throw err;
-      console.log(`\n`);
-      console.table(result);
-    })
-}
-
-function addEmployee() {
-//    Prompt to enter the following data:
-//      - employee’s first name, last name
-//      - role
-//      - manager
-//      - Then show that the employee is added to the database
-  db.query(`SELECT DISTINCT title FROM roles`,
-    (err, roleResults) => {
-      if (err) throw err;
-      const roleList = roleResults.map(obj => Object.values(obj)[0]);
-      console.log(roleList);
-    }
-  );
-
-  const role = getRole(roleList);
-
-  db.query(`SELECT CONCAT(employees.first_name, " ", employees.last_name) AS Manager
-            FROM employees
-            WHERE employees.manager_id = employees.id`,
-    (err, mgrResults) => {
-      if (err) throw err;
-      const mgrList = mgrResults.map(obj => Object.values(obj)[0]);
-      console.log(mgrList);
-    }
-  )
-
-  const mgr = getMgr(roleList);
-
-  // add role and mgr
-  db.query(`INSERT INTO employees (first_name, last_name, role_id)
-            VALUES ("Jackson", "Rambucheau", (
-              SELECT id
-              FROM roles
-              WHERE title = "Janitor")
-            )`, function (err, result, fields) {
-              if (err) throw err;
-              console.log(`\n`);
-              console.table(result);
-            }
-  )
-}
-
-// const keys = ["id", "first_name", "last_name", "role_id", "manager_id"];
-// db.query(`SELECT * FROM employees Where first_name = "Jackson"`, function (err, result, fields) {
-//               if (err) throw err;
-//               displayRes(result, keys);
-//             }
-//   )
-// }
-
-
-function addRole() {
-  const keys = ["title", "salary", "department_id"];
-  db.query(`INSERT INTO roles (title, salary, department_id)
-            VALUES ("Janitor", "21000", (
-              SELECT departments.id
-              FROM departments
-              WHERE departments.dept_name = "Maintenance")
-            )`, function (err, result, fields) {
-              if (err) throw err;
-              console.log(`\n`);
-              console.table(result);
-            }
-  )
-}
-
-//NOTES: not every employee has a manager.
-// Managers are not tied to departments.
-// Pseudo code in a channel
-
-function addDepartment() {
-  db.query(`INSERT INTO departments (dept_name)
-            VALUES ("Maintenance")`, function (err, result, fields) {
-              if (err) throw err;
-              console.log(`\n`);
-              console.table(result);
-            })
-}
-
-function updateEmployeeRole() {
-  console.log("updateEmployeeRole");
-}
-
-mainMenu();
+addDepartment();
+// mainMenu();
