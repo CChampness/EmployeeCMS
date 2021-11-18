@@ -11,5 +11,11 @@
 -- FROM employees
 -- WHERE employees.manager_id = employees.id;
 
-SELECT DISTINCT employees.id, CONCAT(first_name, " ", last_name)
-FROM employees;
+-- SELECT DISTINCT employees.id, CONCAT(first_name, " ", last_name)
+-- FROM employees;
+
+INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (
+    "j", "b",
+  (SELECT id FROM roles WHERE title = "Sales"),
+  (SELECT manager_id FROM employees WHERE first_name = "Yonah" AND last_name = "Zebul")
+);

@@ -53,44 +53,20 @@
 const inquirer = require('inquirer');
 const fs = require('fs');
 const mysql = require("mysql2");
-const { collectData, db } = require("./lib/db");
+const db = require("./lib/db");
 const cTab = require("console.table");
-const refreshDatabase = require("./lib/refreshDB");
 const displayRes = require("./lib/displayRes");
 const { resolveSoa } = require('dns');
 const { exit } = require('process');
-
-/////////////////////////////////////////////////////
-// Array of questions for manager user input
-// const mgrInputs = async (inputs = []) => {
-//   const mgrOptions = [
-//     {
-//       type: 'list',
-//       name: 'manager',
-//       choices: ["A", "B"],
-//       message: 'Who is this employee\'s manager?',
-//     }
-//   ];
-
-//   const { more, ...answers } = await inquirer.prompt(mgrOptions);
-//   const newInputs = [...inputs, answers];
-//   return more ? mgrInputs(newInputs) : newInputs;
-// };
-
-// const getMgr = async () => {
-//   const inputs = await mgrInputs();
-//   switch (inputs[0].userOption) {
-//   }
-//   return //something good;
-// };
+const addEmployee = require("./lib/addEmployee");
 
 userMain = () => {
-  collectData();
+  // collectData();
   inquirer.prompt([{
       type: 'list',
       message: 'What would you like to do?',
       name: 'userOption',
-      choices: ['Refresh the database',
+      choices: [
         'View all employees',
         'View all roles',
         'View all departments',
@@ -103,9 +79,6 @@ userMain = () => {
     }]).then((answers) => {
       console.log(Object.values(answers));
       switch (Object.values(answers)[0]) {
-        // case 'Refresh the database':
-        //   refreshDatabase();
-        //   break;
         case 'View all employees':
           viewAllEmployees();
           break;
@@ -172,59 +145,59 @@ function viewAllDepartments() {
     userMain();
   }
 
-let roleList = "";
-function addEmployee() {
-//    Prompt to enter the following data:
-//      - employee’s first name, last name
-//      - role
-//      - manager
-//      - Then show that the employee is added to the database
-  /////////////////////////////////////////////////////
-  // Array of questions for role user input
-  const roleInputs = function (inputs = []) {
-    db.query(`SELECT DISTINCT title FROM roles`,
-      (err, roleResults) => {
-        if (err) throw err;
-        roleList = roleResults.map((obj) => ({
-          name: obj.title,
-          value: obj.id,
-        }));
-        // // console.log(roleResults);
-        console.log(roleList);
-        // return roleList;
-      }
-    )
+// let roleList = "";
+// function addEmployee() {
+// //    Prompt to enter the following data:
+// //      - employee’s first name, last name
+// //      - role
+// //      - manager
+// //      - Then show that the employee is added to the database
+//   /////////////////////////////////////////////////////
+//   // Array of questions for role user input
+//   const roleInputs = function (inputs = []) {
+//     db.query(`SELECT DISTINCT title FROM roles`,
+//       (err, roleResults) => {
+//         if (err) throw err;
+//         roleList = roleResults.map((obj) => ({
+//           name: obj.title,
+//           value: obj.id,
+//         }));
+//         // // console.log(roleResults);
+//         console.log(roleList);
+//         // return roleList;
+//       }
+//     )
 
-  console.log(roleList);
-  roleInputs();
-  // console.log(getRoles());
-  const roleOptions = [
-    {
-      type: 'list',
-      name: 'role',
-      choices: roleList,
-      message: 'What role does this employee have?',
-    }
-  ];
+//   console.log(roleList);
+//   roleInputs();
+//   // console.log(getRoles());
+//   const roleOptions = [
+//     {
+//       type: 'list',
+//       name: 'role',
+//       choices: roleList,
+//       message: 'What role does this employee have?',
+//     }
+//   ];
 
-  const { more, ...answers } = inquirer.prompt(roleOptions);
-  const newInputs = [...inputs, answers];
-  return more ? roleInputs(newInputs) : newInputs;
-};
+//   const { more, ...answers } = inquirer.prompt(roleOptions);
+//   const newInputs = [...inputs, answers];
+//   return more ? roleInputs(newInputs) : newInputs;
+// };
 
 // add role and mgr
-db.query(`INSERT INTO employees (first_name, last_name, role_id)
-          VALUES ("Jackson", "Rambucheau", (
-          SELECT id
-          FROM roles
-          WHERE title = "Janitor")
-        )`, function (err, result, fields) {
-      if (err) throw err;
-      console.log(`\n`);
-      console.table(result);
-    }
-  )
-}
+// db.query(`INSERT INTO employees (first_name, last_name, role_id)
+//           VALUES ("Jackson", "Rambucheau", (
+//           SELECT id
+//           FROM roles
+//           WHERE title = "Janitor")
+//         )`, function (err, result, fields) {
+//       if (err) throw err;
+//       console.log(`\n`);
+//       console.table(result);
+//     }
+//   )
+// }
 
 function addRole() {
   db.query(`INSERT INTO roles (title, salary, department_id)
