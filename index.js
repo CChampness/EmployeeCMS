@@ -53,109 +53,37 @@
 const inquirer = require('inquirer');
 const fs = require('fs');
 const mysql = require("mysql2");
-const collectData = require("./lib/db");
+const { collectData, db } = require("./lib/db");
 const cTab = require("console.table");
 const refreshDatabase = require("./lib/refreshDB");
 const displayRes = require("./lib/displayRes");
 const { resolveSoa } = require('dns');
 const { exit } = require('process');
 
-const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "root",
-  database: "employees_db"
-});
-
 /////////////////////////////////////////////////////
 // Array of questions for manager user input
-const mgrInputs = async (inputs = []) => {
-  const mgrOptions = [
-    {
-      type: 'list',
-      name: 'manager',
-      choices: ["A", "B"],
-      message: 'Who is this employee\'s manager?',
-    }
-  ];
+// const mgrInputs = async (inputs = []) => {
+//   const mgrOptions = [
+//     {
+//       type: 'list',
+//       name: 'manager',
+//       choices: ["A", "B"],
+//       message: 'Who is this employee\'s manager?',
+//     }
+//   ];
 
-  const { more, ...answers } = await inquirer.prompt(mgrOptions);
-  const newInputs = [...inputs, answers];
-  return more ? mgrInputs(newInputs) : newInputs;
-};
+//   const { more, ...answers } = await inquirer.prompt(mgrOptions);
+//   const newInputs = [...inputs, answers];
+//   return more ? mgrInputs(newInputs) : newInputs;
+// };
 
-const getMgr = async () => {
-  const inputs = await mgrInputs();
-  switch (inputs[0].userOption) {
-  }
-  return //something good;
-};
+// const getMgr = async () => {
+//   const inputs = await mgrInputs();
+//   switch (inputs[0].userOption) {
+//   }
+//   return //something good;
+// };
 
-/////////////////////////////////////////////////////
-
-// Array of choices for main user input
-  const menuInputs = async () => {
-  console.log("mainMenu 2");
-  const menuQuestions = [
-    {
-      type: 'list',
-      message: 'What would you like to do?',
-      name: 'userOption',
-      choices: ['Refresh the database',
-        'View all employees',
-        'View all roles',
-        'View all departments',
-        'Add an employee',
-        'Add a role',
-        'Add a department',
-        'Update an employee\'s role',
-        'Quit'
-      ],
-    },
-  ];
-
-  const { more, ...answers } = await inquirer.prompt(menuQuestions);
-  // const newInputs = [...inputs, answers];
-  const newInputs = [answers];
-  return more ? menuInputs(newInputs) : newInputs;
-};
-
-const mainMenu = async () => {
-  console.log("mainMenu 1");
-  const inputs = await menuInputs();
-  switch (inputs[0].userOption) {
-    // case 'Refresh the database':
-    //   refreshDatabase();
-    //   break;
-    case 'View all employees':
-      viewAllEmployees();
-      break;
-    case 'View all roles':
-      viewAllRoles();
-      break;
-    case 'View all departments':
-      viewAllDepartments();
-      break;
-    case 'Add an employee':
-      addEmployee();
-      break;
-    case 'Add a role':
-      addRole();
-      break;
-    case 'Add a department':
-      addDepartment();
-      break;
-    case 'Update an employee\'s role':
-      updateEmployeeRole();
-      break;
-    case 'Quit':
-      exit();
-      break;
-  }
-  mainMenu();
-};
-
-//////////////////////////////////
 userMain = () => {
   collectData();
   inquirer.prompt([{
@@ -284,30 +212,6 @@ function addEmployee() {
   return more ? roleInputs(newInputs) : newInputs;
 };
 
-// const getRole = async () => {
-//   const inputs = await roleInputs();
-//   switch (inputs[0].userOption) {
-//   }
-//   return //something good;
-// };
-
-
-
-//const role = getRole();
-
-// const mgrList = "";
-// db.query(`SELECT CONCAT(employees.first_name, " ", employees.last_name) AS Manager
-//           FROM employees
-//           WHERE employees.manager_id = employees.id`,
-//   (err, mgrResults) => {
-//     if (err) throw err;
-//     mgrList = mgrResults.map(obj => Object.values(obj)[0]);
-//     console.log(mgrList);
-//   }
-// )
-
-// const mgr = getMgr(roleList);
-
 // add role and mgr
 db.query(`INSERT INTO employees (first_name, last_name, role_id)
           VALUES ("Jackson", "Rambucheau", (
@@ -339,32 +243,6 @@ function addRole() {
 //NOTES: not every employee has a manager.
 // Managers are not tied to departments.
 // Pseudo code in a channel
-
-// const departmentInputs = () => {
-//   console.log("departmentInputs");
-//     const departmentQuestion = [   {
-//     type: 'input',
-//     name: 'department',
-//     message: 'What is the new department?',
-//   } ];
-//   console.log("2.");
-//   const newDepartment = inquirer.prompt(departmentQuestion);
-//   console.log("3.newDepartmant: "+newDepartment);
-//   return newDepartment;
-// };
-
-// function addDepartment() {
-
-
-//   console.log("addDepartment");
-//   const department = getDepartment();
-//   db.query(`INSERT INTO departments (dept_name)
-//             VALUES (${department})`, function (err, result, fields) {
-//     if (err) throw err;
-//     console.log(`\n`);
-//     console.table(result);
-//   })
-// }
 
 addDepartment = () => {
   inquirer.prompt([{
