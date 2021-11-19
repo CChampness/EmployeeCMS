@@ -56,6 +56,7 @@ const db = require("./lib/db");
 const cTab = require("console.table");
 const { exit } = require('process');
 const addEmployee = require("./lib/addEmployee");
+const updateEmployee = require("./lib/updateEmployee");
 const addRole = require("./lib/addRole");
 
 userMain = () => {
@@ -94,7 +95,7 @@ userMain = () => {
         addDepartment();
         break;
       case 'Update an employee\'s role':
-        updateEmployeeRole();
+        updateEmployee();
         break;
       case 'Quit':
         exit();
@@ -157,45 +158,5 @@ addDepartment = () => {
     })
   })
 }
-
-updateEmployeeRole = () => {
-  let empList;
-  db.query(`SELECT DISTINCT CONCAT(first_name, " ", last_name) AS emp
-            FROM employees`, function (err, empRes, fields) {
-    if (err) throw err;
-    console.log(empRes);
-    empList = empRes.map(obj => Object.values(obj)[0]);
-    console.log(empList);
-  })
-
-  // let roleResult;
-  // db.query(`SELECT DISTINCT roles.title FROM roles`, function (err, roleRes, fields) {
-  //     if (err) throw err;
-  //     roleResult = roleRes;
-  //     console.log(roleResult);
-  //   })
-
-  // const roleList = roleResult.map(obj => Object.values(obj)[0]);
-  // console.log(roleList);
-  console.log("empList: " + empList);
-  inquirer.prompt([{
-    type: 'list',
-    name: 'employee',
-    message: 'Which employee do you want to update?',
-    choices: empList
-  },
-    //   {
-    //     type: 'list',
-    //     name: 'role',
-    //     message: 'Which role would you like them to change to?',
-    //     choices: roles
-    // }
-  ]).then(() => {
-    console.log("then: " + empList)
-    // db.updateEmployee(employee, role);
-    // init();
-  })
-};
-
 
 userMain();
