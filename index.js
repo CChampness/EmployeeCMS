@@ -77,7 +77,7 @@ userMain = () => {
         'Quit'
       ],
     }]).then((answers) => {
-      console.log(Object.values(answers));
+      // console.log(Object.values(answers));
       switch (Object.values(answers)[0]) {
         case 'View all employees':
           viewAllEmployees();
@@ -104,7 +104,6 @@ userMain = () => {
           exit();
           break;
       }
-      // userMain();
   });
 }
 
