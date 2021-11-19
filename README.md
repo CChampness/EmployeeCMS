@@ -25,14 +25,14 @@ The following video shows an example of the application being used from the comm
 [walkthrough video thumbnail](https://watch.screencastify.com/v/fkCqG2D2xHtdTc5TB700)
 
 ## Issues
-* Currently, the following 5 features are working:
+* Currently, the following 6 features are working:
     * View all employees
     * View all roles
     * View all departments
     * Add employee
+    * Add role
     * Add a department
-* The following 2 features have not yet been implemented:
-    * Add a role
+* The following  feature has not yet been implemented:
     * Update an employee's role
 
 ## Database schema
